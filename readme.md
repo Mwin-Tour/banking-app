@@ -375,5 +375,4 @@ Pour toute question :
 Bon développement ! 
 
 ## Aperçu
-
-![BANK.jpg](..%2F..%2F..%2F..%2FPictures%2FBANK.jpg)
+![img_1.png](img_1.png)
