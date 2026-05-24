@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banque en ligne - Accueil</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Page de connexion -->
+    <div id="loginPage" class="page active">
+        <div class="container">
+            <div class="card">
+                <div class="header">
+                    <h1>🏦 Banque en ligne</h1>
+                    <p>Connectez-vous à votre espace personnel</p>
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="clientId">ID Client</label>
+                        <input type="number" id="clientId" required placeholder="Votre identifiant">
+                    </div>
+                    <div class="form-group">
+                        <label for="codePin">Code PIN</label>
+                        <input type="password" id="codePin" required placeholder="4 chiffres" maxlength="4">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Se connecter</button>
+                    <p class="link-text">Pas encore de compte ? <a href="#" onclick="showPage('registerPage')">Inscrivez-vous</a></p>
+                </form>
+                <div id="loginError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page d'inscription -->
+    <div id="registerPage" class="page">
+        <div class="container">
+            <div class="card">
+                <div class="header">
+                    <h1>📝 Inscription</h1>
+                    <p>Créez votre compte bancaire</p>
+                </div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="nom">Nom</label>
+                        <input type="text" id="nom" required placeholder="Votre nom">
+                    </div>
+                    <div class="form-group">
+                        <label for="prenom">Prénom</label>
+                        <input type="text" id="prenom" required placeholder="Votre prénom">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" required placeholder="votre@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="telephone">Téléphone</label>
+                        <input type="tel" id="telephone" required placeholder="0123456789">
+                    </div>
+                    <div class="form-group">
+                        <label for="newCodePin">Code PIN (4 chiffres)</label>
+                        <input type="password" id="newCodePin" required placeholder="4 chiffres" maxlength="4" pattern="\d{4}">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPin">Confirmer le code PIN</label>
+                        <input type="password" id="confirmPin" required placeholder="4 chiffres" maxlength="4">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Créer mon compte</button>
+                    <p class="link-text">Déjà inscrit ? <a href="#" onclick="showPage('loginPage')">Connectez-vous</a></p>
+                </form>
+                <div id="registerError" class="error-message"></div>
+                <div id="registerSuccess" class="success-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Dashboard -->
+    <div id="dashboardPage" class="page">
+        <nav class="navbar">
+            <div class="nav-content">
+                <h2>🏦 Ma Banque</h2>
+                <div class="nav-right">
+                    <span id="clientName"></span>
+                    <button onclick="logout()" class="btn btn-secondary">Déconnexion</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            <!-- Section Mes Comptes -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>💳 Mes Comptes</h2>
+                    <button onclick="showCreateAccountModal()" class="btn btn-primary">+ Nouveau compte</button>
+                </div>
+                <div id="accountsList" class="accounts-grid"></div>
+            </div>
+
+            <!-- Section Opérations -->
+            <div class="section">
+                <h2>💸 Effectuer une opération</h2>
+                <div class="operations-tabs">
+                    <button class="tab-btn active" onclick="showOperationTab('depot')">Dépôt</button>
+                    <button class="tab-btn" onclick="showOperationTab('retrait')">Retrait</button>
+                    <button class="tab-btn" onclick="showOperationTab('transfert')">Transfert</button>
+                </div>
+
+                <!-- Formulaire Dépôt -->
+                <div id="depotTab" class="tab-content active">
+                    <form id="depotForm" class="operation-form">
+                        <div class="form-group">
+                            <label for="depotCompte">Compte</label>
+                            <select id="depotCompte" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="depotMontant" id="depotMontantLabel">Montant</label>
+                            <input type="number" id="depotMontant" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="depotDescription">Description</label>
+                            <input type="text" id="depotDescription" placeholder="Ex: Salaire">
+                        </div>
+                        <button type="submit" class="btn btn-success">Effectuer le dépôt</button>
+                    </form>
+                </div>
+
+                <!-- Formulaire Retrait -->
+                <div id="retraitTab" class="tab-content">
+                    <form id="retraitForm" class="operation-form">
+                        <div class="form-group">
+                            <label for="retraitCompte">Compte</label>
+                            <select id="retraitCompte" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="retraitMontant" id="retraitMontantLabel">Montant</label>
+                            <input type="number" id="retraitMontant" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="retraitDescription">Description</label>
+                            <input type="text" id="retraitDescription" placeholder="Ex: Retrait GAB">
+                        </div>
+                        <button type="submit" class="btn btn-warning">Effectuer le retrait</button>
+                    </form>
+                </div>
+
+                <!-- Formulaire Transfert -->
+                <div id="transfertTab" class="tab-content">
+                    <form id="transfertForm" class="operation-form">
+                        <div class="form-group">
+                            <label for="transfertSource">Compte source</label>
+                            <select id="transfertSource" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="transfertDest">Numéro de compte destinataire</label>
+                            <input type="text" id="transfertDest" required placeholder="CPT...">
+                        </div>
+                        <div class="form-group">
+                            <label for="transfertMontant" id="transfertMontantLabel">Montant</label>
+                            <input type="number" id="transfertMontant" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="transfertDescription">Description</label>
+                            <input type="text" id="transfertDescription" placeholder="Ex: Virement">
+                        </div>
+                        <button type="submit" class="btn btn-info">Effectuer le transfert</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Section Historique -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>📊 Historique des opérations</h2>
+                    <select id="historiqueCompteSelect" onchange="loadHistorique()">
+                        <option value="">Tous les comptes</option>
+                    </select>
+                </div>
+                <div id="historiqueList" class="historique-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Création de compte -->
+    <div id="createAccountModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateAccountModal()">&times;</span>
+            <h2>Créer un nouveau compte</h2>
+            <form id="createAccountForm">
+                <div class="form-group">
+                    <label for="typeCompte">Type de compte</label>
+                    <select id="typeCompte" required>
+                        <option value="courant">Compte Courant</option>
+                        <option value="epargne">Compte Épargne</option>
+                    </select>
+                </div>
+                <div class="form-group" id="decouvertGroup">
+                    <label for="decouvert">Découvert autorisé (€)</label>
+                    <input type="number" id="decouvert" value="0" step="100">
+                </div>
+                <div class="form-group" id="tauxInteretGroup" style="display:none;">
+                    <label for="tauxInteret">Taux d'intérêt (%)</label>
+                    <input type="number" id="tauxInteret" value="2.5" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label for="devise">Devise</label>
+                    <select id="devise" required>
+                        <option value="EURO">EURO (€)</option>
+                        <option value="FCFA">FCFA</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Créer le compte</button>
+            </form>
+            <div id="createAccountError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Notification toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

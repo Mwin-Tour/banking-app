@@ -1,0 +1,116 @@
+@startuml
+
+title Architecture Microservices Bancaire - Modèle de Données (TP2 - UML Correct)
+
+' =====================================================
+' CLIENT SERVICE (DB: clientdb)
+' =====================================================
+package "CLIENT-SERVICE (Port 8081)" {
+
+  class Client {
+    - id: Long
+    - nom: String
+    - prenom: String
+    - email: String
+    - telephone: String
+    - dateCreation: LocalDateTime
+    + getComptes(): List<CompteDTO> <<API REST>>
+  }
+}
+
+' =====================================================
+' COMPTE SERVICE (DB: comptedb)
+' =====================================================
+package "COMPTE-SERVICE (Port 8082)" {
+
+  enum Devise {
+    FCFA
+    EURO
+  }
+
+  enum StatutCompte {
+    CREE
+    ACTIF
+    SUSPENDU
+  }
+
+  abstract class Compte {
+    - id: Long
+    - numeroCompte: String
+    - dateCreation: LocalDateTime
+    - solde: BigDecimal
+    - statut: StatutCompte
+    - devise: Devise
+    - clientId: Long <<référence Client via API>>
+    + crediter(montant: BigDecimal): void
+    + debiter(montant: BigDecimal): void
+    + peutDebiter(montant: BigDecimal): boolean
+  }
+
+  class CompteCourant {
+    - decouvert: BigDecimal
+    + peutDebiter(montant: BigDecimal): boolean
+  }
+
+  class CompteEpargne {
+    - tauxInteret: Double
+    + calculerInterets(): BigDecimal
+    + appliquerInterets(): void
+    + peutDebiter(montant: BigDecimal): boolean
+  }
+
+  Compte <|-- CompteCourant
+  Compte <|-- CompteEpargne
+
+  Compte --> Devise
+  Compte --> StatutCompte
+}
+
+' =====================================================
+' OPERATION SERVICE (DB: operationdb)
+' =====================================================
+package "OPERATION-SERVICE (Port 8083)" {
+
+  enum TypeOperation {
+    CREDIT
+    DEBIT
+    TRANSFERT
+  }
+
+  class Operation {
+    - id: Long
+    - dateOperation: LocalDateTime
+    - montant: BigDecimal
+    - typeOperation: TypeOperation
+    - description: String
+    - numeroCompteSource: String <<API>>
+    - numeroCompteDestination: String <<API>>
+  }
+
+  Operation --> TypeOperation
+}
+
+' =====================================================
+' RELATIONS MÉTIER (ASSOCIATIONS UML CORRECTES)
+' =====================================================
+
+Client "1" -- "0..*" Compte : possède
+Compte "1" -- "0..*" Operation : génère
+
+' =====================================================
+' GATEWAY SERVICE (Point d'entrée unique)
+' =====================================================
+package "GATEWAY-SERVICE (Port 8080)" {
+
+  class Gateway {
+    + /api/clients/** → CLIENT-SERVICE
+    + /api/comptes/** → COMPTE-SERVICE
+    + /api/operations/** → OPERATION-SERVICE
+  }
+}
+
+Gateway .up.> Client : route
+Gateway .up.> Compte : route
+Gateway .up.> Operation : route
+
+@enduml

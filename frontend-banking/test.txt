@@ -1,0 +1,158 @@
+ PARFAIT ! GUIDE POSTMAN POUR TESTER VOS MICROSERVICES
+
+🚀 ÉTAPE 1 : Configuration initiale Postman
+
+Ouvrez Postman
+Créez une nouvelle Collection :
+
+Cliquez sur "Collections" (à gauche)
+Cliquez sur "+" ou "Create Collection"
+Nommez-la : "Banking Microservices TP2"
+
+
+
+
+🧪 ÉTAPE 2 : TESTS À FAIRE DANS L'ORDRE
+✅ TEST 1 : Liste des clients (CLIENT-SERVICE)
+
+New Request → Nommez : "GET Clients"
+Méthode : GET
+URL : http://localhost:8081/api/clients
+Send
+
+Résultat attendu :
+json[
+  {
+    "id": 1,
+    "nom": "OUEDRAOGO",
+    "prenom": "Jean",
+    "email": "jean.ouedraogo@email.com",
+    ...
+  },
+  {
+    "id": 2,
+    "nom": "KABORE",
+    ...
+  }
+]
+
+✅ TEST 2 : Comptes du client 1 (COMPTE-SERVICE)
+
+New Request → Nommez : "GET Comptes Client 1"
+Méthode : GET
+URL : http://localhost:8082/api/comptes/client/1
+Send
+
+Résultat attendu : 2 comptes (1 courant, 1 épargne)
+📝 NOTEZ LES NUMÉROS DE COMPTES (ex: CPT1769551935287745)
+
+✅ TEST 3 : Crédit (OPERATION-SERVICE)
+
+New Request → Nommez : "POST Crédit"
+Méthode : POST
+URL : http://localhost:8083/api/operations/credit
+Headers → Ajoutez :
+
+Key: Content-Type
+Value: application/json
+
+
+Body → Sélectionnez "raw" et "JSON"
+Collez :
+
+json{
+  "numeroCompte": "CPT1769551935287745",
+  "montant": 50000,
+  "description": "Dépôt initial"
+}
+
+Send
+
+Résultat attendu :
+json{
+  "id": 1,
+  "dateOperation": "2026-01-27T...",
+  "montant": 50000.00,
+  "typeOperation": "CREDIT",
+  "description": "Dépôt initial",
+  "numeroCompteSource": "CPT1769551935287745"
+}
+
+✅ TEST 4 : Vérifier le solde après crédit
+
+Répétez TEST 2 : GET http://localhost:8082/api/comptes/client/1
+
+Vérification : Le solde du compte courant doit passer de 100000 à 150000 🎯
+
+✅ TEST 5 : Débit
+
+New Request → Nommez : "POST Débit"
+Méthode : POST
+URL : http://localhost:8083/api/operations/debit
+Body (raw JSON) :
+
+json{
+  "numeroCompte": "CPT1769551935287745",
+  "montant": 20000,
+  "description": "Retrait DAB"
+}
+
+Send
+
+Vérification : Solde doit passer de 150000 à 130000
+
+✅ TEST 6 : Transfert
+
+New Request → Nommez : "POST Transfert"
+Méthode : POST
+URL : http://localhost:8083/api/operations/transfert
+Body (raw JSON) :
+
+json{
+  "numeroCompte": "CPT1769551935287745",
+  "numeroCompteDestinataire": "CPT1769551935577977",
+  "montant": 30000,
+  "description": "Virement mensuel"
+}
+
+Send
+
+Vérification :
+
+Compte source (courant) : 130000 → 100000
+Compte destination (épargne) : 500000 → 530000
+
+
+✅ TEST 7 : Historique des opérations
+
+New Request → Nommez : "GET Historique"
+Méthode : GET
+URL : http://localhost:8083/api/operations/compte/CPT1769551935287745
+Send
+
+Résultat attendu : Liste de toutes les opérations (crédit, débit, transfert)
+
+✅ TEST 8 : Test règle métier - Solde insuffisant
+
+New Request → Nommez : "POST Débit Insuffisant"
+Méthode : POST
+URL : http://localhost:8083/api/operations/debit
+Body (raw JSON) :
+
+json{
+  "numeroCompte": "CPT1769551935577977",
+  "montant": 600000,
+  "description": "Test solde insuffisant"
+}
+
+Send
+
+Résultat attendu : ❌ Erreur 409 CONFLICT
+json{
+  "timestamp": "...",
+  "message": "Solde insuffisant pour débiter",
+  "status": 409
+}
+
+📊 RÉCAPITULATIF DES TESTS
+#TestURLMéthodeStatus attendu1Liste clients:8081/api/clientsGET200 OK2Comptes client 1:8082/api/comptes/client/1GET200 OK3Crédit:8083/api/operations/creditPOST201 CREATED4Vérifier solde:8082/api/comptes/client/1GET200 OK5Débit:8083/api/operations/debitPOST201 CREATED6Transfert:8083/api/operations/transfertPOST201 CREATED7Historique:8083/api/operations/compte/{numero}GET200 OK8Solde insuffisant:8083/api/operations/debitPOST409 CONF
