@@ -372,7 +372,8 @@ Pour toute question :
 - [ ] CORS configuré dans la Gateway
 - [ ] Premier client créé et testé
 
-Bon développement ! 🚀
+Bon développement ! 
 
 ## Aperçu
+
 ![BANK.jpg](..%2F..%2F..%2F..%2FPictures%2FBANK.jpg)
